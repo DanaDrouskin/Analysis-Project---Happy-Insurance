@@ -1,0 +1,33 @@
+﻿DEFINE
+
+MEASURE Customers[Sales amount (all times)] = CALCULATE(SUMX(Sales, Sales[Revenue]), Sales[Revenue] > 0, all(Dates[Date].[Date]))
+
+MEASURE Customers[Claims amount (all times)] = CALCULATE(-1 * SUMX(Sales, Sales[Revenue]), Sales[Revenue] < 0, all(Dates[Date].[Date]))
+
+MEASURE Customers[Sales Units Qty (all times)] = CALCULATE(SUMX(Sales, Sales[Qty]), Sales[Revenue] > 0, all(Dates[Date].[Date]))
+
+MEASURE Customers[Claims Units Qty (all times)] = CALCULATE(SUMX(Sales, Sales[Qty]), Sales[Revenue] < 0, ALL(Dates[Date].[Date]))
+
+MEASURE Customers[Claims Ratio (all times)] = DIVIDE([Claims amount (all times)], [Sales amount (all times)], 0)
+
+MEASURE Customers[Claims Frequency (all times)] = DIVIDE([Claims Units Qty (all times)], [Sales Units Qty (all times)], 0) 
+
+MEASURE Customers[Claims Risk] = [Claims Ratio (all times)] * [Claims Frequency (all times)] * 1000
+
+MEASURE Customers[Claims Risk Grade] = IF([Claims Risk] <= 1, "Low", IF([Claims Risk] <= 5, "Medium", IF([Claims Risk] <= 10, "High", "Very High")))
+
+
+EVALUATE
+SUMMARIZECOLUMNS(
+    Customers[Customer Name],
+    "Total Sales amount", [Sales amount (all times)],
+    "Total Claims amount", [Claims amount (all times)],
+    "Total Sales Units Qty", [Sales Units Qty (all times)],
+    "Total Claims Units Qty", [Claims Units Qty (all times)],
+    "Claims Ratio", [Claims Ratio (all times)],
+    "Claims Frequency", [Claims Frequency (all times)],
+    "Claims Risk", [Claims Risk],
+    "Claims Risk Grade", [Claims Risk Grade]
+)
+ORDER BY 
+    Customers[Customer Name] ASC

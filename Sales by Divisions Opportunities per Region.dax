@@ -1,0 +1,23 @@
+﻿DEFINE
+
+MEASURE Customers[Customers_Purchased_Count] = DISTINCTCOUNT(Sales[CustomerSK])
+
+MEASURE Customers[Customers_Total] = 
+COUNTROWS(
+	CALCULATETABLE(VALUES(Sales[CustomerSK]), all(Products[DivisionName]))
+	)
+
+MEASURE Customers[% Purchased_From_Total] = divide([Customers_Purchased_Count]*100, [Customers_Total], 0)
+
+
+EVALUATE
+SUMMARIZECOLUMNS(
+    Customers[Region],
+    Products[DivisionName],
+    "Customers_Purchased_Count", [Customers_Purchased_Count],
+    "Customers_Total", [Customers_Total],
+    "% Purchased_From_Total", [% Purchased_From_Total]
+)
+ORDER BY 
+    Customers[Region] ASC,
+    Products[DivisionName] ASC

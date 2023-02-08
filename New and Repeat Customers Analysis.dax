@@ -1,0 +1,63 @@
+﻿DEFINE
+
+MEASURE Customers[Count_All_Customers] = DISTINCTCOUNT(Sales[CustomerSK])
+
+MEASURE Customers[New_Customers] = 
+
+	var CurrentCust = VALUES(Sales[CustomerSK])
+	
+	var CurrentDate = min(Dates[Date])
+
+	var PastCustomers = CALCULATETABLE(
+							VALUES(Sales[CustomerSK]),
+							all(Dates[Date]),
+							Dates[Date]<CurrentDate
+							)
+
+var New_Customers = EXCEPT(CurrentCust, PastCustomers)
+
+return
+COUNTROWS(New_Customers)
+
+
+MEASURE Customers[New_Customers_Sales] = 
+	var CurrentCust = VALUES(Sales[CustomerSK])
+	var CurrentDate = min(Dates[Date])
+
+	var PastCustomers = CALCULATETABLE(
+							VALUES(Sales[CustomerSK]),
+							all(Dates[Date]),
+							Dates[Date]<CurrentDate
+							)
+
+	var New_Customers = EXCEPT(CurrentCust, PastCustomers)
+
+return
+SUMX(New_Customers, [Total Sales])
+
+
+MEASURE Customers[Repeat_Customers_Count] = [Count_All_Customers]-[New_Customers]
+
+
+MEASURE Customers[Repeat_Customers_Sales] = [Total Sales]-[New_Customers_Sales]
+
+
+
+EVALUATE
+SUMMARIZECOLUMNS(
+    Dates[Date],
+    "Count_All_Customers", [Count_All_Customers],
+    "Total Sales", [Total Sales],
+    "Repeat_Customers_Count", [Repeat_Customers_Count],
+    "Repeat_Customers_Cnt_%", divide([Repeat_Customers_Count], [Count_All_Customers], 0),
+    "Repeat_Customers_Sales", [Repeat_Customers_Sales],
+    "Repeat_cust_sales_%", divide([Repeat_Customers_Sales], [Total Sales], 0),
+    "New_Customers", [New_Customers],
+    "New_Cust-cnt-%", divide([New_Customers], [Count_All_Customers], 0),
+    "New_Customers_Sales", [New_Customers_Sales],
+    "New_cust_sales_%", divide([New_Customers_Sales], [Total Sales], 0)
+   
+    
+)
+ORDER BY 
+    Dates[Date] ASC

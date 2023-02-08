@@ -1,0 +1,267 @@
+﻿--------------------------- Exploring the Datasets -----------------------------------
+
+------ Customers ------
+
+-- How many Customers? How Many Industry Types? --
+
+DEFINE
+MEASURE Customers[Customers Count] = DISTINCTCOUNT(Customers[CustomerSK])
+MEASURE Customers[Industry Types Count] = DISTINCTCOUNT(Customers[Industry Type])
+EVALUATE
+CALCULATETABLE(
+    ROW(
+    "Customers Count", [Customers Count],
+    "Industry Types Count", [Industry Types Count]
+    )
+)
+
+-- How many Regions? How many Countries? --
+
+DEFINE
+MEASURE Customers[Regions Count] = DISTINCTCOUNT(Customers[Region])
+MEASURE Customers[Countries Count] = DISTINCTCOUNT(Customers[Country])
+EVALUATE
+CALCULATETABLE(
+    ROW(
+    "Regions Count", [Regions Count],
+    "Countries Count", [Countries Count]
+    )
+)
+
+-- Breakdown of Customers by Industry Type: --
+
+DEFINE
+MEASURE Customers[Customers Count] = DISTINCTCOUNT(Customers[CustomerSK])
+EVALUATE
+SUMMARIZECOLUMNS(
+    Customers[Industry Type],
+    "Customers Count", [Customers Count]
+)
+ORDER BY 
+    Customers[Customers count] DESC
+    
+-- Breakdown of Countries by Region: --
+
+DEFINE
+MEASURE Customers[Countries Count] = DISTINCTCOUNT(Customers[Country])
+EVALUATE
+SUMMARIZECOLUMNS(
+    Customers[Region],
+    "Countries Count", [Countries Count]
+)
+ORDER BY 
+    Customers[Countries Count] DESC
+    
+-- Breakdown of Customers by Region: --
+
+DEFINE
+MEASURE Customers[Customers Count] = DISTINCTCOUNT(Customers[CustomerSK])
+EVALUATE
+SUMMARIZECOLUMNS(
+    Customers[Region],
+    "Customers Count", [Customers Count]
+)
+ORDER BY 
+    Customers[Customers Count] DESC
+    
+
+
+------ Products ------
+    
+-- How many Divisions? How many Segments? How many Product Types? How many Products?
+
+DEFINE
+MEASURE Customers[Divisions Count] = DISTINCTCOUNT(Products[Division Name])
+MEASURE Customers[Segments Count] = DISTINCTCOUNT(Products[Segment Name])
+MEASURE Customers[Product Types Count] = DISTINCTCOUNT(Products[Product Type])
+MEASURE Customers[Products Count] = DISTINCTCOUNT(Products[Product Name])
+EVALUATE
+CALCULATETABLE(
+    ROW(
+    "Divisions Count", [Divisions Count],
+    "Segments Count", [Segments Count],
+    "Product Types Count", [Product Types Count],
+    "Products Count", [Products Count]
+    )
+)
+
+-- Breakdown of Products Table:
+
+EVALUATE
+SUMMARIZECOLUMNS(
+    Products[Division Name],
+    Products[Segment Name],
+    Products[Product Type],
+    Products[Product Name]
+)
+ORDER BY 
+    Products[Division Name] ASC,
+    Products[Segment Name] ASC,
+    Products[Product Type] ASC,
+    Products[Product Name] ASC
+
+
+
+------ Orders ------
+
+-- How many Orders? How many Order Lines? --
+
+DEFINE
+MEASURE Customers[Orders Count] = DISTINCTCOUNT(Orders[OrderBK])
+MEASURE Customers[Order Lines Count] = DISTINCTCOUNT(Orders[OrderSK])
+EVALUATE
+CALCULATETABLE(
+    ROW(
+    "Orders Count", [Orders Count],
+    "Order Lines Count", [Order Lines Count]
+    )
+)
+
+-- Breakdown of Orders by Industry Types: --
+
+DEFINE
+MEASURE Customers[Orders Count] = DISTINCTCOUNT(Orders[OrderBK])
+EVALUATE
+SUMMARIZECOLUMNS(
+    Customers[Industry Type],
+    "Orders Count", [Orders Count]
+)
+ORDER BY 
+    Customers[Orders Count] DESC
+    
+-- Breakdown of Orders by Regions: --
+
+DEFINE
+MEASURE Customers[Orders Count] = DISTINCTCOUNT(Orders[OrderBK])
+EVALUATE
+SUMMARIZECOLUMNS(
+    Customers[Region],
+    "Orders Count", [Orders Count]
+)
+ORDER BY 
+    Customers[Orders Count] DESC
+    
+-- Breakdown of Orders by Years: --
+
+DEFINE
+MEASURE Customers[Orders Count] = DISTINCTCOUNT(Orders[OrderBK])
+EVALUATE
+SUMMARIZECOLUMNS(
+    Dates[Year],
+    "Orders Count", [Orders Count]
+)
+ORDER BY 
+    Dates[Year] DESC
+    
+
+
+------ Sales, Claims, Profits ------
+
+-- by Years and Quarters: --
+
+DEFINE
+MEASURE Customers[Total Sales] = SUMX(FILTER(Sales, Sales[Revenue] > 0), Sales[Revenue])
+MEASURE Customers[Total Claims] = SUMX(FILTER(Sales, Sales[Revenue] <= 0), Sales[Revenue])
+MEASURE Customers[Total Profits] = SUM(Sales[Revenue])
+MEASURE Customers[Total Sales Units Qty] = SUMX(FILTER(Sales, Sales[Revenue] > 0), Sales[Qty])
+MEASURE Customers[Total Claims Units Qty] = SUMX(FILTER(Sales, Sales[Revenue] <= 0), Sales[Qty])
+MEASURE Customers[Avg Price per Unit] = DIVIDE([Total Sales], [Total Sales Units Qty], BLANK())
+MEASURE Customers[Avg Cost per Unit] = DIVIDE([Total Claims], [Total Claims Units Qty], BLANK())
+EVALUATE
+SUMMARIZECOLUMNS(
+    Dates[Year],
+    Dates[Quarter],
+    "Total Sales", [Total Sales],
+    "Total Claims", [Total Claims],
+    "Total Profits", [Total Profits],
+    "Total Sales Units Qty", [Total Sales Units Qty],
+    "Total Claims Units Qty", [Total Claims Units Qty],
+    "Avg Price per Unit", [Avg Price per Unit],
+    "Avg Cost per Unit", [Avg Cost per Unit]
+)
+ORDER BY 
+    Dates[Year] ASC,
+    Dates[Quarter] ASC
+
+
+-- by Years and Industry Types: --
+
+DEFINE
+MEASURE Customers[Total Sales] = SUMX(FILTER(Sales, Sales[Revenue] > 0), Sales[Revenue])
+MEASURE Customers[Total Claims] = SUMX(FILTER(Sales, Sales[Revenue] <= 0), Sales[Revenue])
+MEASURE Customers[Total Profits] = SUM(Sales[Revenue])
+MEASURE Customers[Total Sales Units Qty] = SUMX(FILTER(Sales, Sales[Revenue] > 0), Sales[Qty])
+MEASURE Customers[Total Claims Units Qty] = SUMX(FILTER(Sales, Sales[Revenue] <= 0), Sales[Qty])
+MEASURE Customers[Avg Price per Unit] = DIVIDE([Total Sales], [Total Sales Units Qty], BLANK())
+MEASURE Customers[Avg Cost per Unit] = DIVIDE([Total Claims], [Total Claims Units Qty], BLANK())
+EVALUATE
+SUMMARIZECOLUMNS(
+    Dates[Year],
+    Customers[Industry Type],
+    "Total Sales", [Total Sales],
+    "Total Claims", [Total Claims],
+    "Total Profits", [Total Profits],
+    "Total Sales Units Qty", [Total Sales Units Qty],
+    "Total Claims Units Qty", [Total Claims Units Qty],
+    "Avg Price per Unit", [Avg Price per Unit],
+    "Avg Cost per Unit", [Avg Cost per Unit]
+)
+ORDER BY 
+    Dates[Year] DESC,
+    Customers[Industry Type] ASC
+    
+-- by Years and Regions:
+
+DEFINE
+MEASURE Customers[Total Sales] = SUMX(FILTER(Sales, Sales[Revenue] > 0), Sales[Revenue])
+MEASURE Customers[Total Claims] = SUMX(FILTER(Sales, Sales[Revenue] <= 0), Sales[Revenue])
+MEASURE Customers[Total Profits] = SUM(Sales[Revenue])
+MEASURE Customers[Total Sales Units Qty] = SUMX(FILTER(Sales, Sales[Revenue] > 0), Sales[Qty])
+MEASURE Customers[Total Claims Units Qty] = SUMX(FILTER(Sales, Sales[Revenue] <= 0), Sales[Qty])
+MEASURE Customers[Avg Price per Unit] = DIVIDE([Total Sales], [Total Sales Units Qty], BLANK())
+MEASURE Customers[Avg Cost per Unit] = DIVIDE([Total Claims], [Total Claims Units Qty], BLANK())
+EVALUATE
+SUMMARIZECOLUMNS(
+    Dates[Year],
+    Customers[Region],
+    "Total Sales", [Total Sales],
+    "Total Claims", [Total Claims],
+    "Total Profits", [Total Profits],
+    "Total Sales Units Qty", [Total Sales Units Qty],
+    "Total Claims Units Qty", [Total Claims Units Qty],
+    "Avg Price per Unit", [Avg Price per Unit],
+    "Avg Cost per Unit", [Avg Cost per Unit]
+)
+ORDER BY 
+    Dates[Year] DESC,
+    Customers[Region] ASC
+    
+-- by Divisions, Segments, Product Types & Product Names: --
+
+DEFINE
+MEASURE Customers[Total Sales] = SUMX(FILTER(Sales, Sales[Revenue] > 0), Sales[Revenue])
+MEASURE Customers[Total Claims] = SUMX(FILTER(Sales, Sales[Revenue] <= 0), Sales[Revenue])
+MEASURE Customers[Total Profits] = SUM(Sales[Revenue])
+MEASURE Customers[Total Sales Units Qty] = SUMX(FILTER(Sales, Sales[Revenue] > 0), Sales[Qty])
+MEASURE Customers[Total Claims Units Qty] = SUMX(FILTER(Sales, Sales[Revenue] <= 0), Sales[Qty])
+MEASURE Customers[Avg Price per Unit] = DIVIDE([Total Sales], [Total Sales Units Qty], BLANK())
+MEASURE Customers[Avg Cost per Unit] = DIVIDE([Total Claims], [Total Claims Units Qty], BLANK())
+EVALUATE
+SUMMARIZECOLUMNS(
+    Products[Division Name],
+    Products[Segment Name],
+    Products[Product Type],
+    Products[Product Name],
+    "Total Sales", [Total Sales],
+    "Total Claims", [Total Claims],
+    "Total Profits", [Total Profits],
+    "Total Sales Units Qty", [Total Sales Units Qty],
+    "Total Claims Units Qty", [Total Claims Units Qty],
+    "Avg Price per Unit", [Avg Price per Unit],
+    "Avg Cost per Unit", [Avg Cost per Unit]
+)
+ORDER BY 
+    Products[Division Name] ASC,
+    Products[Segment Name] ASC,
+    Products[Product Type] ASC,
+    Products[Product Name] ASC
